@@ -35,6 +35,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
         split_data = self.data.decode().split()
         
         if len(split_data) < 1:
+            self.request.sendall(bytearray("HTTP/1.1 404 Not Found\r\n\r\n",'utf-8'))
             return
    
         # splits request into a list of strings
@@ -81,7 +82,6 @@ class MyWebServer(socketserver.BaseRequestHandler):
             self.request.sendall(bytearray(content,'utf-8'))
             
         except:
-            print(file_name)
             self.request.sendall(bytearray("HTTP/1.1 404 Not Found\r\n\r\n",'utf-8'))
             return
         return
