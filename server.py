@@ -30,9 +30,100 @@ import socketserver
 class MyWebServer(socketserver.BaseRequestHandler):
     
     def handle(self):
+
         self.data = self.request.recv(1024).strip()
-        print ("Got a request of: %s\n" % self.data)
-        self.request.sendall(bytearray("OK",'utf-8'))
+        split_data = self.data.decode().split()
+        
+        if len(split_data) < 1:
+            return
+   
+        # splits request into a list of strings
+        method = split_data[0] 
+
+        # First argument should contain http method, check for GET
+        if method != 'GET':
+            self.request.sendall(bytearray("HTTP/1.1 405 Method Not Allowed\r\n\r\n",'utf-8'))
+            return
+
+        else: # get request received
+
+            path = split_data[1] # get path
+
+            # check if it's html, css or none
+            path_ending = path.split('.')
+
+            if path[-1] == '/': #return corresponding redirected html page
+                path = path + 'index.html'
+                self.get_html(path)
+            elif path_ending[-1] == 'css': # gets request css file
+                self.get_css(path)
+            elif path_ending[-1] == 'html': # gets requested html file
+                self.get_html(path)
+            else:
+                # path does not end in a valid file or path that ends with /
+                # try to redirect
+                self.redirect_page(path)
+
+
+            
+
+    def get_html(self, path):
+        # retrieves of one of the index.html files
+        # is_deep tells us whether we are using index.html in the deep folder or not
+        file_name = 'www' + path
+
+        try: #opens the html 
+            file = open(file_name)
+            content = file.read()
+            file.close()
+
+            self.request.sendall(bytearray("HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n",'utf-8'))
+            self.request.sendall(bytearray(content,'utf-8'))
+            
+        except:
+            print(file_name)
+            self.request.sendall(bytearray("HTTP/1.1 404 Not Found\r\n\r\n",'utf-8'))
+            return
+        return
+
+    def get_css(self, path):
+        # retrieves of a css file
+        file_name = 'www' + path
+
+        try: #opens the html 
+            file = open(file_name)
+            content = file.read()
+            file.close()
+
+            self.request.sendall(bytearray("HTTP/1.1 200 OK\r\nContent-Type: text/css\r\n\r\n",'utf-8'))
+            self.request.sendall(bytearray(content,'utf-8'))
+            
+        except:
+            print(file_name)
+            self.request.sendall(bytearray("HTTP/1.1 404 Not Found\r\n\r\n",'utf-8'))
+            return
+        return
+
+    def redirect_page(self, path):
+        # assuming user is trying go to existing directory with incorrect path
+        file_name = 'www' + path + '/index.html' 
+
+        try: # tries to enter the correct directory
+            file = open(file_name)
+            content = file.read()
+            file.close()
+
+            self.request.sendall(bytearray("HTTP/1.1 301 Moved Permanently\r\nLocation: " + path + '/' + "\r\n\r\n",'utf-8'))
+            self.request.sendall(bytearray(content,'utf-8'))
+            
+        except: # the requested path does not exist at all
+            self.request.sendall(bytearray("HTTP/1.1 404 Not Found\r\n\r\n",'utf-8'))
+            return
+        return
+    
+    
+        
+        
 
 if __name__ == "__main__":
     HOST, PORT = "localhost", 8080
