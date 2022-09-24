@@ -61,7 +61,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 self.get_html(path)
             else:
                 # path does not end in a valid file or path that ends with /
-                # try to redirect
+                # try to redirect, could be an invalid path
                 self.redirect_page(path)
 
 
