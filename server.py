@@ -49,11 +49,9 @@ class MyWebServer(socketserver.BaseRequestHandler):
         else: # get request received
 
             path = split_data[1] # get path
-            print("WHALE PATH IS:", path)
 
             # prevent user from accessing root directory
             if '../' in path:
-                print('gwa')
                 self.request.sendall(bytearray("HTTP/1.1 404 Not Found\r\n\r\n",'utf-8'))
                 return
 
