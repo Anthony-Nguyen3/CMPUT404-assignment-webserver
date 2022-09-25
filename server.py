@@ -34,7 +34,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
         self.data = self.request.recv(1024).strip()
         split_data = self.data.decode().split()
         
-        if len(split_data) < 1:
+        if len(split_data) < 1: # check for empty requests
             self.request.sendall(bytearray("HTTP/1.1 404 Not Found\r\n\r\n",'utf-8'))
             return
    
@@ -49,6 +49,13 @@ class MyWebServer(socketserver.BaseRequestHandler):
         else: # get request received
 
             path = split_data[1] # get path
+            print("WHALE PATH IS:", path)
+
+            # prevent user from accessing root directory
+            if '../' in path:
+                print('gwa')
+                self.request.sendall(bytearray("HTTP/1.1 404 Not Found\r\n\r\n",'utf-8'))
+                return
 
             # check if it's html, css or none
             path_ending = path.split('.')
@@ -107,13 +114,13 @@ class MyWebServer(socketserver.BaseRequestHandler):
         # assuming user is trying go to existing directory with incorrect path
         file_name = 'www' + path + '/index.html' 
 
-        try: # tries to enter the correct directory
+        try: # tries to enter the correct directory, check if it exists
             file = open(file_name)
             content = file.read()
             file.close()
 
             self.request.sendall(bytearray("HTTP/1.1 301 Moved Permanently\r\nLocation: " + path + '/' + "\r\n\r\n",'utf-8'))
-            self.request.sendall(bytearray(content,'utf-8'))
+            #self.request.sendall(bytearray(content,'utf-8'))
             
         except: # the requested path does not exist at all
             self.request.sendall(bytearray("HTTP/1.1 404 Not Found\r\n\r\n",'utf-8'))
