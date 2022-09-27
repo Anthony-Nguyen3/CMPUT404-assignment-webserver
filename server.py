@@ -84,7 +84,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
             content = file.read()
             file.close()
 
-            self.request.sendall(bytearray("HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n",'utf-8'))
+            self.request.sendall(bytearray("HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: " + str(len(content)) + "\r\n\r\n",'utf-8'))
             self.request.sendall(bytearray(content,'utf-8'))
             
         except:
@@ -101,7 +101,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
             content = file.read()
             file.close()
 
-            self.request.sendall(bytearray("HTTP/1.1 200 OK\r\nContent-Type: text/css\r\n\r\n",'utf-8'))
+            self.request.sendall(bytearray("HTTP/1.1 200 OK\r\nContent-Type: text/css\r\nContent-Length: " + str(len(content)) + "\r\n\r\n",'utf-8'))
             self.request.sendall(bytearray(content,'utf-8'))
             
         except:
