@@ -111,13 +111,14 @@ class MyWebServer(socketserver.BaseRequestHandler):
     def redirect_page(self, path):
         # assuming user is trying go to existing directory with incorrect path
         file_name = 'www' + path + '/index.html' 
+        base_url = "http://127.0.0.1:8080"
 
         try: # tries to enter the correct directory, check if it exists
             file = open(file_name)
             content = file.read()
             file.close()
 
-            self.request.sendall(bytearray("HTTP/1.1 301 Moved Permanently\r\nLocation: " + path + '/' + "\r\n\r\n",'utf-8'))
+            self.request.sendall(bytearray("HTTP/1.1 301 Moved Permanently\r\nLocation: " + base_url + path + '/' + "\r\n\r\n",'utf-8'))
             #self.request.sendall(bytearray(content,'utf-8'))
             
         except: # the requested path does not exist at all
